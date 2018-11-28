@@ -15,3 +15,6 @@ local_settings.py
 
 # Mac
 .DS_Store
+
+# Secret configs
+secret_settings.py
