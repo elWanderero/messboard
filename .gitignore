@@ -18,3 +18,6 @@ local_settings.py
 
 # Secret configs
 secret_settings.py
+
+# Pycharm/intelliJ stuff
+.idea/
