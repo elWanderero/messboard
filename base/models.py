@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User as DjangoAuthUser
 
 
 class User(models.Model):
@@ -30,6 +31,7 @@ class Message(models.Model):
     # db_column="createdby" option to force column
     # name, default adds _id for foreign keys
     createdby = models.ForeignKey(User, models.DO_NOTHING, related_name="username")
+    author = models.ForeignKey(DjangoAuthUser, models.DO_NOTHING, related_name="author")
 
     class Meta:
         managed = True
