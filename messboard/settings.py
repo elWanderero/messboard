@@ -79,7 +79,6 @@ WSGI_APPLICATION = "messboard.wsgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = []  # DEV uncomment below in production
 #     {
 #         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
@@ -117,4 +116,12 @@ REST_FRAMEWORK = {
 
 # django.contrib.auth stuff
 
+# Replace django auth's default User model. This is what get_user_model() calls
+AUTH_USER_MODEL = "base.User"
+
+# Allowed hashers. First in list is the main one used. The rest are used only
+# for password verification, no new passwords are created with it. This is
+# probably only necessary in a legacy system.
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.BCryptSHA256PasswordHasher"]
+
+LOGIN_REDIRECT_URL = "/sajt"
