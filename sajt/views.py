@@ -1,14 +1,22 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.shortcuts import render
 
 from base.models import Message
-from django.shortcuts import render
 
 
 @login_required
 def index(request) -> HttpResponse:
-    messages = Message.objects.filter(author=request.user.id).only("text")
-    context = {"messages": messages}
+    subs = request.user.subscriptions.all().only("id", "username")
+    messages = Message.objects.filter(author__in=subs).only("text", "created")
+    messages_by_authors = [
+        {
+            "author": sub.username,
+            "messages": messages.filter(author=sub).values("text", "created"),
+        }
+        for sub in subs
+    ]
+    context = {"messages_by_authors": messages_by_authors}
     return render(request, "sajt/index.html", context)
 
 

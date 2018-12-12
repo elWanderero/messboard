@@ -1,13 +1,19 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-{% if messages %}
-    <ul>
-    {% for message in messages %}
-        <li>{{ message.text }}</li>
+
+{% if messages_by_authors %}
+    <h1>Här är dina prenumerationer</h1>
+    {% for messages_by_author in messages_by_authors %}
+        <h2>{{ messages_by_author.author }}</h2>
+        <ul>
+            {% for message in messages_by_author.messages %}
+                <li>{{ message.created }}:<p>{{ message.text }}</p></li>
+            {% endfor %}
+        </ul>
     {% endfor %}
-    </ul>
 {% else %}
     <p>Inga meddelanden.</p>
 {% endif %}
+
 {% endblock %}
