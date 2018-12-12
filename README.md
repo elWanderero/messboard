@@ -1,8 +1,11 @@
 # Messboard
-A tiny message board project, currently consisting of two apps:
+A tiny message board project, using django. Currently consists of three apps:
 
 ## Api
-An HTTP API for delivering, receiving and managins messages on a per-user-basis.
+An HTTP API for delivering, receiving and managing messages on a per-user-basis. Currently not integrated with django auth, so not working.
 
 ## Base
-Basic models and stuff that are shared between other apps. Currently the only "other app" is `api` of course, but there are plans for a browser frontend that will probably also need these.
+Basic models and stuff that are shared between other apps.
+
+## Sajt
+Frontend for the project.
