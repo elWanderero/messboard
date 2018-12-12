@@ -17,17 +17,21 @@ import django_heroku
 from . import secret_settings
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY: str = secret_settings.SECRET_KEY
+if hasattr(secret_settings, "SECRET_KEY"):
+    SECRET_KEY: str = secret_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG: bool = secret_settings.DEBUG
+if hasattr(secret_settings, "DEBUG"):
+    DEBUG: bool = secret_settings.DEBUG
 
-ALLOWED_HOSTS: list = secret_settings.ALLOWED_HOSTS
+
+if hasattr(secret_settings, "ALLOWED_HOSTS"):
+    ALLOWED_HOSTS: list = secret_settings.ALLOWED_HOSTS
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-DATABASES = secret_settings.DATABASES
+if hasattr(secret_settings, "DATABASES"):
+    DATABASES = secret_settings.DATABASES
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
