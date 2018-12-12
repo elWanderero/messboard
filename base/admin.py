@@ -8,6 +8,9 @@ from .forms import UserChangeForm, UserCreationForm
 from .models import Message, User
 
 
+# This can be used to put editable items directly in the admin list view.
+# It is enabled by defining functions get_changelist and get_changelist_form
+# in the admin that will use it (that would be UserAdmin.)
 class UserChangeList(ChangeList):
     def __init__(self, request, model, list_display,
                  list_display_links, list_filter, date_hierarchy,
@@ -45,15 +48,12 @@ class UserAdmin(AuthUserAdmin):
                                        'groups', 'user_permissions')}),
     )
 
+    # Uncomment below to enable class UserChangeList above.
     # def get_changelist(self, request, **kwargs):
     #     return UserChangeList
     #
     # def get_changelist_form(self, request, **kwargs):
     #     return UserChangeListForm
-
-
-# class UserAdmin(admin.ModelAdmin):
-#     list_display = ("username", "email", "is_active", "date_joined")
 
 
 class MessageAdmin(admin.ModelAdmin):
