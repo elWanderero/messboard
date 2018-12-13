@@ -15,4 +15,9 @@
 # in the .env file locally or via the interface in
 # the cloud. Otherwise this file will not be read.
 
-# Nothing to see here.
+import os
+
+# Now you can put DEBUG = "True" as an environment variable
+# on Heroku to enable Django debugging!
+if "DEBUG" in os.environ and os.environ["DEBUG"] == "True":
+    DEBUG = True
