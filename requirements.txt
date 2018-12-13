@@ -1,5 +1,6 @@
 gunicorn
-django
+django>=2.1.4
 django-heroku  # Available by default on heroku, but needed locally
 djangorestframework
+coreapi
 bcrypt>=3.1.4
