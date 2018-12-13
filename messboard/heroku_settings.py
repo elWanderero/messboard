@@ -21,3 +21,4 @@ import os
 # on Heroku to enable Django debugging!
 if "DEBUG" in os.environ and os.environ["DEBUG"] == "True":
     DEBUG = True
+    AUTH_PASSWORD_VALIDATORS = []  # Simple passwords during development
