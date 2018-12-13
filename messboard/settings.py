@@ -12,32 +12,14 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-import django_heroku
-
-from . import secret_settings
-
-# SECURITY WARNING: keep the secret key used in production secret!
-if hasattr(secret_settings, "SECRET_KEY"):
-    SECRET_KEY: str = secret_settings.SECRET_KEY
-
-# SECURITY WARNING: don't run with debug turned on in production!
-if hasattr(secret_settings, "DEBUG"):
-    DEBUG: bool = secret_settings.DEBUG
-
-
-if hasattr(secret_settings, "ALLOWED_HOSTS"):
-    ALLOWED_HOSTS: list = secret_settings.ALLOWED_HOSTS
-
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-if hasattr(secret_settings, "DATABASES"):
-    DATABASES = secret_settings.DATABASES
+#############################
+#  Application definition   #
+#############################
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Application definition
 
 INSTALLED_APPS = [
     "base.apps.BaseConfig",
@@ -83,19 +65,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "messboard.wsgi.application"
 
 
-# Password validation
-# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
-AUTH_PASSWORD_VALIDATORS = []  # DEV uncomment below in production
-#     {
-#         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-#     },
-#     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-#     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-#     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-# ]
-
-
-# Internationalization
+#########################
+# Internationalization  #
+#########################
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LANGUAGE_CODE = "sv-SE"
@@ -108,19 +80,39 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
+#############################################
+#   Static files (CSS, JavaScript, Images)  #
+#############################################
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
 }
 
+#############################
+# django.contrib.auth stuff #
+#############################
 
-# django.contrib.auth stuff
+# Password validation
+# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 # Replace django auth's default User model. This is what get_user_model() calls
 AUTH_USER_MODEL = "base.User"
@@ -133,18 +125,21 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.BCryptSHA256PasswordHasher"]
 LOGIN_REDIRECT_URL = "/sajt"
 
 
-#############################
-#           HEROKU          #
-#############################
+#########################
+#  LOCALIZED SETTINGS   #
+#########################
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
-# Extra places for collectstatic to find static files.
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
-# Activate Django-Heroku.
-django_heroku.settings(locals())
+try:
+    if "IS_HEROKU" in os.environ and os.environ["IS_HEROKU"] == "1":
+        import django_heroku
+        django_heroku.settings(locals())  # Activate Django-Heroku.
+        from .heroku_settings import *
+    else:
+        from .secret_settings import *
+except ImportError:
+    pass

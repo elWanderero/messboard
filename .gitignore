@@ -2,7 +2,6 @@
 # Python #
 ##########
 __pycache__/
-*.py[cod]
 *$py.class
 
 # mypy
@@ -10,13 +9,6 @@ __pycache__/
 
 # Black
 pyproject.toml
-
-# Django stuff:
-*.log
-local_settings.py
-
-# Secret configs
-secret_settings.py
 
 
 ##########
@@ -36,3 +28,19 @@ secret_settings.py
 
 # Pycharm/intelliJ stuff
 .idea/
+
+
+############
+#  HEROKU  #
+############
+
+.env
+
+
+############
+#  DJANGO  #
+############
+*.log
+
+local_settings.py
+secret_settings.py
