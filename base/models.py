@@ -51,5 +51,5 @@ class Message(models.Model):
     author = models.ForeignKey(User, models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
-        self.date_updated = timezone.now
+        self.date_updated = timezone.now()
         super().save(*args, **kwargs)
