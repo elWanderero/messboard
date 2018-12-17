@@ -57,7 +57,8 @@ class UserAdmin(AuthUserAdmin):
 
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("author", "text", "created")
+    list_display = ("author", "text", "date_created")
+    readonly_fields = ("date_updated", "date_created")
 
 
 admin.site.register(User, UserAdmin)

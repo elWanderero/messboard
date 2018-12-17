@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, User as DjangoAuthUser
 from django.db import models
+from django.utils import timezone
 
 
 # An extension of django auth's User, to be Used instead of that in this project
@@ -7,7 +8,9 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-    # Fields inherited from AbstractUser:
+    #########################################
+    #  Fields inherited from AbstractUser   #
+    #########################################
     # username = models.CharField(…)
     # first_name = models.CharField(…)
     # last_name = models.CharField(…)
@@ -16,7 +19,9 @@ class User(AbstractUser):
     # is_active = models.BooleanField(…)
     # date_joined = models.DateTimeField(…)
 
-    # Fields inherited from AbstractBaseUser:
+    ##########################################
+    # Fields inherited from AbstractBaseUser #
+    ##########################################
     # password = models.CharField(…)
     # last_login = models.DateTimeField(…)
 
@@ -40,10 +45,11 @@ class Message(models.Model):
             txt = txt[:17] + "..."
         return '{} "{}"'.format(self.id, txt)
 
-    created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(default=timezone.now)
     text = models.TextField()
-    updated = models.DateTimeField(auto_now=True)
-    # db_column="createdby" option to force column
-    # name, default adds _id for foreign keys
-    # author = models.TextField()
+    date_updated = models.DateTimeField(blank=True)
     author = models.ForeignKey(User, models.DO_NOTHING)
+
+    def save(self, *args, **kwargs):
+        self.date_updated = timezone.now
+        super().save(*args, **kwargs)
