@@ -53,3 +53,6 @@ class Message(models.Model):
     def save(self, *args, **kwargs):
         self.date_updated = timezone.now()
         super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["-date_created"]
