@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h2>Dina meddelanden</h2>
+    <ul>
+        {% for message in message_list %}
+            <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
+        {% endfor %}
+    </ul>
+    <ul>
+        {% for message in message %}
+            <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
+        {% endfor %}
+    </ul>
+
+    <form action="{% url 'myMessages' %}" method="post">
+        <legend>Nytt meddelande</legend>
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}
