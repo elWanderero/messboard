@@ -8,7 +8,7 @@
         <h2>{{ messages_by_author.author }}</h2>
         <ul>
             {% for message in messages_by_author.messages %}
-                <li>{{ message.created }}:<p>{{ message.text }}</p></li>
+                <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
             {% endfor %}
         </ul>
     {% endfor %}
