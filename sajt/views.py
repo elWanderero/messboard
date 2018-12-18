@@ -24,6 +24,46 @@ def index(request) -> HttpResponse:
     return render(request, "sajt/index.html", context)
 
 
-@login_required
-def my_messages(request) -> HttpResponse:
-    return HttpResponse("Here you can very clearly see your own messages.")
+class MyMessages(LoginRequiredMixin, CreateView):
+    template_name = "sajt/message_list.html"
+    # form_class = MessageCreationForm
+    fields = ["text"]
+    model = Message
+    success_url = "myMessages"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        message_list = self.model.objects.filter(author=self.request.user).defer(
+            "author")
+        context["message_list"] = message_list
+        return context
+
+    # from FormMixin
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden()
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+#####################################################################
+# CBV methods that I want to keep around for a while as reference:  #
+#####################################################################
+# @method_decorator(require_safe, name="dispatch")
+
+# def post(self, request, *args, **kwargs):
+#     if not request.user.is_authenticated:
+#         return HttpResponseForbidden()
+#     self.object = self.get_object()
+#     return super().post(request, *args, **kwargs)
+
+# def get(self, request, *args, **kwargs):
+#     # ex ListView. The result will have key message_list in context.
+#     object_list = self.model.objects.filter(author=self.request.user).defer(
+#         "author").order_by("date_created")
+#
+#     context = self.get_context_data(object_list=object_list, form=self.form_class)
+#     return render(request, self.template_name, context)
+
+# def post(self, request, *args, **kwargs):
+#     return self.get(request, *args, **kwargs)
