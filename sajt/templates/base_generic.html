@@ -7,14 +7,19 @@
 </head>
 <body>
 {% block nav %}
-        <nav>
-    {% if user.is_authenticated %}
+    <nav>
+        {% if user.is_authenticated %}
             <span>Välkommen {{ user.username }}! </span>
+            <a href="{% url "index" %}">Prenumerationer</a>
+            <a href="{% url "myMessages" %}">Mine egna meddelanden</a>
             <a href="{% url "logout" %}">Logout</a>
+            {%  if user.is_staff %}
+                <a href="{% url "admin:index" %}">Admin</a>
+            {% endif %}
         {% elif not user.is_authenticated %}
             <a href="{% url "login" %}">Login</a>
-    {% endif %}
-        </nav>
+        {% endif %}
+    </nav>
 {% endblock %}
 {% block content %}<!-- default content text (typically empty) -->{% endblock %}
 </body>
