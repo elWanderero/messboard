@@ -4,16 +4,17 @@
     <h2>Dina meddelanden</h2>
     <ul>
         {% for message in message_list %}
-            <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
-        {% endfor %}
-    </ul>
-    <ul>
-        {% for message in message %}
-            <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
+            <li style="margin: 0 0 1em 0;">
+                <div style="border:1px; border-style:solid; display:inline-block; vertical-align:middle;">
+                    <p>{{ message.text }}</p>
+                    {{ message.date_created }}<br/>
+                    <a href="{{ message.get_absolute_url }}">Detail view</a>
+                </div>
+            </li>
         {% endfor %}
     </ul>
 
-    <form action="{% url 'myMessages' %}" method="post">
+    <form action="{% url 'sajt:message-list' %}" method="post">
         <legend>Nytt meddelande</legend>
         {% csrf_token %}
         {{ form }}
