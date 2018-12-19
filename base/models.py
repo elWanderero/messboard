@@ -41,9 +41,9 @@ class User(AbstractUser):
 class Message(models.Model):
     def __str__(self):
         txt: str = self.text.__str__()
-        if len(txt) > 20:
-            txt = txt[:17] + "..."
-        return '{} "{}"'.format(self.id, txt)
+        if len(txt) > 30:
+            txt = txt[:27] + "..."
+        return '{}'.format(txt)
 
     date_created = models.DateTimeField(default=timezone.now)
     text = models.TextField()
@@ -53,6 +53,10 @@ class Message(models.Model):
     def save(self, *args, **kwargs):
         self.date_updated = timezone.now()
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return "messages/" + str(self.id)
+        # return reversed("", args=[str(self.id)])
 
     class Meta:
         ordering = ["-date_created"]
