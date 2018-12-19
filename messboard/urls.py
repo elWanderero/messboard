@@ -20,7 +20,7 @@ from sajt.views import index
 
 urlpatterns = [
     path("", index, name="index"),
-    path("sajt/", include("sajt.urls")),
+    path("sajt/", include("sajt.urls", namespace="sajt")),
     path("api/", include("api.urls")),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
