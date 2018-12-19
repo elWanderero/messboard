@@ -1,9 +1,10 @@
-from base.models import Message, User
 from rest_framework import serializers
+
+from base.models import Message, User
 
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
-    createdbyName = serializers.CharField(source="createdby")
+    createdbyName = serializers.CharField(source="author")
 
     class Meta:
         model = Message
@@ -11,18 +12,18 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             "url",
             "id",
-            "createdby",
+            "author",
             "createdbyName",
             "text",
-            "created",
-            "updated",
+            "date_created",
+            "date_updated",
         )
-        extra_kwargs = {"createdby": {"lookup_field": "name"}}
+        extra_kwargs = {"author": {"lookup_field": "username"}}
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         # fields = "__all__"
-        fields = ("url", "id", "name", "created", "email")
-        extra_kwargs = {"url": {"lookup_field": "name"}}
+        fields = ("url", "id", "username", "date_joined", "email")
+        extra_kwargs = {"url": {"lookup_field": "username"}}
