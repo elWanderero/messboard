@@ -4,6 +4,8 @@
     <p>{{ message.text }}</p>
     {{ message.date_created }}
 
-    <a href="{% url 'sajt:message-edit' message.id %}">Edit</a>
-    <a href="{% url 'sajt:message-delete' message.id %}">Delete</a>
+    {% if user == message.author %}
+        <a href="{% url 'sajt:message-edit' message.id %}">Edit</a>
+        <a href="{% url 'sajt:message-delete' message.id %}">Delete</a>
+    {% endif %}
 {% endblock %}

@@ -1,20 +1,27 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_safe
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from base.models import Message
+from base.models import Message, User
 
 
-def _user_is_message_owner(view_instance):
-    user = view_instance.request.user
+def _user_is_message_owner(view_instance, request):
+    user = request.user
     author = view_instance.get_object().author
     return user.is_authenticated and author == user
 
+
+class MessageOwnerRequiredMixin(AccessMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not _user_is_message_owner(self, request):
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
 
 
 @require_safe
@@ -33,97 +40,63 @@ def index(request) -> HttpResponse:
     return render(request, "sajt/index.html", context)
 
 
-class MessageList(LoginRequiredMixin, CreateView):
+class UserMessageList(CreateView):
     template_name = "sajt/message_list.html"
     # form_class = MessageCreationForm
     fields = ["text"]
     model = Message
-    success_url = reverse_lazy("sajt:message-list")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.requested_user = User.objects.get(username=self.kwargs["username"])
+        self.user_is_owner = (
+            request.user.is_authenticated and request.user == self.requested_user
+        )
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        message_list = self.model.objects.filter(author=self.request.user).defer(
-            "author")
+        message_list = self.model.objects.filter(author=self.requested_user).defer(
+            "author"
+        )
         context["message_list"] = message_list
+        if self.user_is_owner:
+            context["shown_name"] = "Dina"
+        else:
+            context["shown_name"] = self.kwargs["username"]
+        context["user_is_owner"] = self.user_is_owner
         return context
+
+    def get_success_url(self):
+        return reverse("sajt:message-list", kwargs={"username": self.requested_user})
 
     # from FormMixin
     def form_valid(self, form):
-        if not self.request.user.is_authenticated:
+        if not self.user_is_owner:
             return HttpResponseForbidden()
         form.instance.author = self.request.user
         return super().form_valid(form)
 
 
+@method_decorator(require_safe, name="dispatch")
 class MessageDetail(DetailView):
     template_name = "sajt/message_detail.html"
     model = Message
 
 
-class MessageDelete(LoginRequiredMixin, DeleteView):
+class MessageDelete(MessageOwnerRequiredMixin, DeleteView):
     template_name = "sajt/message_delete.html"
     model = Message
-    success_url = reverse_lazy("sajt:message-list")
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context["short_description"] = self.get_object().__str__()
-    #     print(self.get_object().__str__())
-    #     return context
-
-    def delete(self, request, *args, **kwargs):
-        if _user_is_message_owner(self):
-            return super().delete(request, *args, **kwargs)
-        else:
-            return self.handle_no_permission()
-
-    def dispatch(self, request, *args, **kwargs):
-        if _user_is_message_owner(self):
-            return super().dispatch(request, *args, **kwargs)
-        else:
-            return self.handle_no_permission()
+    def get_success_url(self):
+        return reverse(
+            "sajt:message-list", kwargs={"username": self.request.user.username}
+        )
 
 
-class MessageEdit(LoginRequiredMixin, UpdateView):
+class MessageEdit(MessageOwnerRequiredMixin, UpdateView):
     template_name = "sajt/message_edit.html"
     model = Message
     fields = ["text"]
-    # success_url = reverse_lazy("sajt:message-list", kwargs={"id": })
 
     def get_success_url(self):
-        return reverse_lazy("sajt:message-detail", kwargs={"pk": self.object.id})
-
-    def post(self, request, *args, **kwargs):
-        if _user_is_message_owner(self):
-            return super().post(request, *args, **kwargs)
-        else:
-            return self.handle_no_permission()
-
-    def dispatch(self, request, *args, **kwargs):
-        if _user_is_message_owner(self):
-            return super().dispatch(request, *args, **kwargs)
-        else:
-            return self.handle_no_permission()
-
-
-#####################################################################
-# CBV methods that I want to keep around for a while as reference:  #
-#####################################################################
-# @method_decorator(require_safe, name="dispatch")
-
-# def post(self, request, *args, **kwargs):
-#     if not request.user.is_authenticated:
-#         return HttpResponseForbidden()
-#     self.object = self.get_object()
-#     return super().post(request, *args, **kwargs)
-
-# def get(self, request, *args, **kwargs):
-#     # ex ListView. The result will have key message_list in context.
-#     object_list = self.model.objects.filter(author=self.request.user).defer(
-#         "author").order_by("date_created")
-#
-#     context = self.get_context_data(object_list=object_list, form=self.form_class)
-#     return render(request, self.template_name, context)
-
-# def post(self, request, *args, **kwargs):
-#     return self.get(request, *args, **kwargs)
+        return reverse("sajt:message-detail", kwargs={"pk": self.object.id})

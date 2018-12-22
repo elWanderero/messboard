@@ -11,7 +11,7 @@
         {% if user.is_authenticated %}
             <span >Välkommen {{ user.username }}! </span>
             <a href="{% url "index" %}">Prenumerationer</a>
-            <a href="{% url "sajt:message-list" %}">Mine egna meddelanden</a>
+            <a href="{% url "sajt:message-list" user.username %}">Mine egna meddelanden</a>
             <a href="{% url "logout" %}">Logout</a>
             {%  if user.is_staff %}
                 <a href="{% url "admin:index" %}">Admin</a>
