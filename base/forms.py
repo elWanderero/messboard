@@ -1,22 +1,28 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserChangeForm as AuthChangeForm, \
-    UserCreationForm as AuthCreationForm
+from django.contrib.auth.forms import UserChangeForm as AuthUserChangeForm, \
+    UserCreationForm as AuthUserCreationForm
 
 
-class UserCreationForm(AuthCreationForm):
-    class Meta(AuthCreationForm):
+class UserCreationForm(AuthUserCreationForm):
+    class Meta(AuthUserCreationForm):
         model = get_user_model()
-        fields = AuthCreationForm.Meta.fields
+        fields = AuthUserCreationForm.Meta.fields
 
 
-class UserChangeForm(AuthChangeForm):
-    class Meta(AuthChangeForm):
+class UserChangeForm(AuthUserChangeForm):
+    class Meta(AuthUserChangeForm):
         model = get_user_model()
-        fields = AuthChangeForm.Meta.fields
+        fields = AuthUserChangeForm.Meta.fields
 
 
 class UserChangeListForm(forms.ModelForm):
     subscriptions = forms.ModelMultipleChoiceField(
         queryset=get_user_model().objects.all(), required=False
     )
+
+
+# class MessageCreationForm(forms.ModelForm):
+#     class Meta(forms.ModelForm):
+#         model = Message
+#         fields = ["text"]
