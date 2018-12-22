@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import AccessMixin
-from django.http import HttpResponse, HttpResponseForbidden
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -47,7 +48,10 @@ class UserMessageList(CreateView):
     model = Message
 
     def dispatch(self, request, *args, **kwargs):
-        self.requested_user = User.objects.get(username=self.kwargs["username"])
+        try:
+            self.requested_user = User.objects.get(username=self.kwargs["username"])
+        except ObjectDoesNotExist:
+            raise Http404("Användaren finns inte")
         self.user_is_owner = (
             request.user.is_authenticated and request.user == self.requested_user
         )
