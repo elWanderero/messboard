@@ -1,26 +1,19 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h2>{{ shown_name }} meddelanden</h2>
-    <ul>
-        {% for message in message_list %}
-            <li style="margin: 0 0 1em 0;">
-                <div style="border:1px; border-style:solid; display:inline-block; vertical-align:middle;">
-                    <p>{{ message.text }}</p>
-                    {{ message.date_created }}<br/>
-                    <a href="{% url 'sajt:message-detail' message.id %}">Detail view</a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
 
-    {% if user_is_owner %}
-        <form action="{% url 'sajt:message-list' user.username %}" method="post">
-            <legend>Nytt meddelande</legend>
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" value="Submit">
-        </form>
-    {%  endif %}
+{% if messages_by_authors %}
+    <h1>Alla meddelanden i hela världen:</h1>
+    {% for messages_by_author in messages_by_authors %}
+        <h2>{{ messages_by_author.author }}</h2>
+        <ul>
+            {% for message in messages_by_author.messages %}
+                <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% else %}
+    <p>Inga meddelanden.</p>
+{% endif %}
 
 {% endblock %}

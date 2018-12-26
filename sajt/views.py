@@ -41,12 +41,32 @@ def index(request) -> HttpResponse:
     return render(request, "sajt/index.html", context)
 
 
-class UserMessageList(CreateView):
+def message_list(request):
     template_name = "sajt/message_list.html"
+    messages = Message.objects.all()
+    one_msg_per_author = (
+        messages.distinct("author").only("author").order_by("author")
+    )
+    messages_by_authors = [
+        {
+            "author": msg.author.username,
+            "messages": messages.filter(author=msg.author).values(
+                "text", "date_created"
+            ),
+        }
+        for msg in one_msg_per_author
+    ]
+    context = {"messages_by_authors": messages_by_authors}
+    return render(request, template_name, context)
+
+
+class UserMessageList(CreateView):
+    template_name = "sajt/user_message_list.html"
     # form_class = MessageCreationForm
     fields = ["text"]
     model = Message
 
+    # Dispatch is the outermost function. Here we check if the URL even exists.
     def dispatch(self, request, *args, **kwargs):
         try:
             self.requested_user = User.objects.get(username=self.kwargs["username"])
@@ -57,8 +77,11 @@ class UserMessageList(CreateView):
         )
         return super().dispatch(request, *args, **kwargs)
 
+    # Check if accessing user is owner of the requested page, and set some
+    # context values correspondingly. We set the displayed name and a boolean flag.
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        self.data = super().get_context_data(**kwargs)
+        context = self.data
         message_list = self.model.objects.filter(author=self.requested_user).defer(
             "author"
         )
@@ -70,8 +93,11 @@ class UserMessageList(CreateView):
         context["user_is_owner"] = self.user_is_owner
         return context
 
+    # URL for successfully submitted new Message form.
     def get_success_url(self):
-        return reverse("sajt:message-list", kwargs={"username": self.requested_user})
+        return reverse(
+            "sajt:user-message-list", kwargs={"username": self.requested_user}
+        )
 
     # from FormMixin
     def form_valid(self, form):
@@ -93,7 +119,7 @@ class MessageDelete(MessageOwnerRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse(
-            "sajt:message-list", kwargs={"username": self.request.user.username}
+            "sajt:user-message-list", kwargs={"username": self.request.user.username}
         )
 
 
