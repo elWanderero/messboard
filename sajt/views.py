@@ -18,6 +18,9 @@ def _user_is_message_owner(view_instance, request):
     return user.is_authenticated and author == user
 
 
+# Requires a view instance where self.get_object().author exists.
+# Adds the requirement that user must be logged in and be identical to the
+# self.get_object().author.
 class MessageOwnerRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not _user_is_message_owner(self, request):
@@ -25,6 +28,7 @@ class MessageOwnerRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+# Se your starting page, with all your subscriptions.
 @require_safe
 @login_required
 def index(request) -> HttpResponse:
@@ -41,6 +45,8 @@ def index(request) -> HttpResponse:
     return render(request, "sajt/index.html", context)
 
 
+
+# View ALL messages by ALL users.
 def message_list(request):
     template_name = "sajt/message_list.html"
     messages = Message.objects.all()
@@ -60,6 +66,8 @@ def message_list(request):
     return render(request, template_name, context)
 
 
+# View all messages by a user. Each message has a link to view that message
+# individually. If logged in as viewed user, present form to post new message.
 class UserMessageList(CreateView):
     template_name = "sajt/user_message_list.html"
     # form_class = MessageCreationForm
@@ -107,12 +115,14 @@ class UserMessageList(CreateView):
         return super().form_valid(form)
 
 
+# View and, if logged as correct user, provide links to edit and delete that message.
 @method_decorator(require_safe, name="dispatch")
 class MessageDetail(DetailView):
     template_name = "sajt/message_detail.html"
     model = Message
 
 
+# If logged as correct user, edit a single message.
 class MessageDelete(MessageOwnerRequiredMixin, DeleteView):
     template_name = "sajt/message_delete.html"
     model = Message
@@ -123,6 +133,7 @@ class MessageDelete(MessageOwnerRequiredMixin, DeleteView):
         )
 
 
+# If logged as correct user, delete a single message.
 class MessageEdit(MessageOwnerRequiredMixin, UpdateView):
     template_name = "sajt/message_edit.html"
     model = Message
