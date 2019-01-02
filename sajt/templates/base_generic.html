@@ -13,7 +13,7 @@
             <a href="{% url "index" %}">Prenumerationer</a>
             <a href="{% url "sajt:user-message-list" user.username %}">Mina egna meddelanden</a>
             <a href="{% url "sajt:message-list" %}">Alla meddelanden</a>
-            <a href="{% url "logout" %}">Logout</a>
+            <a href="{% url "logout" %}">Logga ut</a>
             {%  if user.is_staff %}
                 <a href="{% url "admin:index" %}">Admin</a>
             {% endif %}
