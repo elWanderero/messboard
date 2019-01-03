@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
@@ -12,20 +12,20 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from base.models import Message, User
 
 
-def _user_is_message_owner(view_instance, request):
-    user = request.user
-    author = view_instance.get_object().author
-    return user.is_authenticated and author == user
+# def _user_is_message_owner(view_instance, request):
+#     user = request.user
+#     author = view_instance.get_object().author
+#     return user.is_authenticated and author == user
 
 
 # Requires a view instance where self.get_object().author exists.
 # Adds the requirement that user must be logged in and be identical to the
 # self.get_object().author.
-class MessageOwnerRequiredMixin(AccessMixin):
-    def dispatch(self, request, *args, **kwargs):
-        if not _user_is_message_owner(self, request):
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
+class MessageOwnerRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        user = self.request.user
+        author = self.get_object().author
+        return user.is_authenticated and author == user
 
 
 # Se your starting page, with all your subscriptions.
@@ -44,6 +44,7 @@ def index(request) -> HttpResponse:
     context = {"messages_by_authors": messages_by_authors}
     return render(request, "sajt/index.html", context)
 
+    #     return HttpResponseRedirect(self.get_success_url())
 
 
 # View ALL messages by ALL users.
