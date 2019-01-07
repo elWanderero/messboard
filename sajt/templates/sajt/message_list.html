@@ -2,18 +2,25 @@
 
 {% block content %}
 
-{% if messages_by_authors %}
-    <h1>Alla meddelanden i hela världen:</h1>
-    {% for messages_by_author in messages_by_authors %}
-        <h2>{{ messages_by_author.author }}</h2>
-        <ul>
-            {% for message in messages_by_author.messages %}
-                <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
-{% else %}
-    <p>Inga meddelanden.</p>
-{% endif %}
+    {% if messages_by_authors %}
+        <h1>Alla meddelanden i hela världen</h1>
+        {% for messages_by_author in messages_by_authors %}
+            <h2 style="display: inline">
+                <a href="{% url 'sajt:user-message-list' username=messages_by_author.author %}">
+                    {{ messages_by_author.author }}
+                </a>
+            </h2>&nbsp;
+            <a href="{% url 'sajt:add-subscription' slug=user subscription_username=messages_by_author.author %}">
+                Prenumerera
+            </a>
+            <ul>
+                {% for message in messages_by_author.messages %}
+                    <li>{{ message.date_created }}:<p>{{ message.text }}</p></li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>Inga meddelanden.</p>
+    {% endif %}
 
 {% endblock %}
