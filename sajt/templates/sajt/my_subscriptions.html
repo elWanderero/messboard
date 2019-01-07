@@ -9,7 +9,7 @@
                 <a href="{% url 'sajt:user-message-list' username=messages_by_author.author %}">
                     {{ messages_by_author.author }}
                 </a>
-            </h2>
+            </h2>&nbsp;
             <a href="{% url 'sajt:remove-subscription' slug=user subscription_username=messages_by_author.author %}">
                 Sluta prenumerera
             </a>
