@@ -1,19 +1,10 @@
 from rest_framework import viewsets
-# from rest_framework import generics  # ,status, mixins, permissions
 from rest_framework.decorators import api_view
-# from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from base.models import Message, User
 from .serializers import MessageSerializer, UserSerializer
-
-
-# def index(request):
-#     return HttpResponse("Hello, world. You're at the API index.")
-
-
-# Dear myself: Note that with these rest_framwork views,
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
