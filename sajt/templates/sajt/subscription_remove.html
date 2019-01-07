@@ -4,6 +4,6 @@
     <form method="post">
         {% csrf_token %}
         <p>Är du säker på att du vill radera <a href="{% url 'sajt:user-message-list' subscription_username %}">{{ subscription_username }}</a> från dina prenumerationer?</p>
-        <input type="submit" value="Ta bort">
+        <input type="submit" value="Sluta prenumerera">
     </form>
 {% endblock %}
