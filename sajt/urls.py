@@ -5,11 +5,16 @@ from . import views
 app_name = "sajt"
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views.my_subscriptions, name="my-subscriptions"),
     path(
         "users/<str:username>",
         views.UserMessageList.as_view(),
         name="user-message-list",
+    ),
+    path(
+        "users/<str:username>/subscriptions",
+        views.my_subscriptions,
+        name="subscriptions",
     ),
     path(
         "users/<str:slug>/subscriptions/<str:subscription_username>/delete",

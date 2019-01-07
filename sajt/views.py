@@ -43,7 +43,7 @@ class UserOwnerRequiredMixin(UserPassesTestMixin):
 # Se your starting page, with all your subscriptions.
 @require_safe
 @login_required
-def index(request) -> HttpResponse:
+def my_subscriptions(request) -> HttpResponse:
     subs = request.user.subscriptions.all().only("id", "username")
     messages = Message.objects.filter(author__in=subs).only("text", "date_created")
     messages_by_authors = [

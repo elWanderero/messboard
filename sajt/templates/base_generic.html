@@ -10,7 +10,7 @@
     <nav>
         {% if user.is_authenticated %}
             <span >Välkommen {{ user.username }}! </span>
-            <a href="{% url "index" %}">Prenumerationer</a>
+            <a href="{% url "sajt:my-subscriptions" %}">Prenumerationer</a>
             <a href="{% url "sajt:user-message-list" user.username %}">Mina egna meddelanden</a>
             <a href="{% url "sajt:message-list" %}">Alla meddelanden</a>
             <a href="{% url "logout" %}">Logga ut</a>
