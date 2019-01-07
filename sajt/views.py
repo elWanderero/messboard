@@ -5,7 +5,7 @@ from django.http import (
     Http404,
     HttpResponse,
     HttpResponseForbidden,
-)
+    HttpResponseRedirect)
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -16,10 +16,9 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from base.models import Message, User
 
 
-# def _user_is_message_owner(view_instance, request):
-#     user = request.user
-#     author = view_instance.get_object().author
-#     return user.is_authenticated and author == user
+#####################################################################
+#                        AUTHORIZATION UTILS                        #
+#####################################################################
 
 
 # Requires a view instance where self.get_object().author exists.
@@ -40,6 +39,11 @@ class UserOwnerRequiredMixin(UserPassesTestMixin):
         return user.is_authenticated and edited_username == user.username
 
 
+#####################################################################
+#                        SUBSCRIPTION VIEWS                         #
+#####################################################################
+
+
 # Se your starting page, with all your subscriptions.
 @require_safe
 @login_required
@@ -54,7 +58,7 @@ def my_subscriptions(request) -> HttpResponse:
         for sub in subs
     ]
     context = {"messages_by_authors": messages_by_authors}
-    return render(request, "sajt/index.html", context)
+    return render(request, "sajt/my_subscriptions.html", context)
 
 
 # View to remove a single subscription from a user. User and subscription to remove
@@ -62,28 +66,79 @@ def my_subscriptions(request) -> HttpResponse:
 class RemoveSubscription(UserOwnerRequiredMixin, UpdateView):
     template_name = "sajt/subscription_remove.html"
     model = User
-    success_url = reverse_lazy("index")
+    success_url = reverse_lazy("sajt:my-subscriptions")
     fields = ("subscriptions",)
     slug_field = "username"
+
+    # Ugly. Something here is fishy. Why am I using post() for the main form
+    # action of removing a subscription item from the User? Bonkers. I should
+    # Probably have a custom form (but that turned out to be really hard too) or
+    # at least overwrite get_form_kwarg() to just hard set the form values and ignore
+    # those from POST (but that is hard because QuerySets are immutable, and I would
+    # want to add the subscription to the query result of current subscribers. Also
+    # requires an extra database call which is ridiculous.)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        sub_name_to_remove = self.kwargs["subscription_username"]
+        # Raises ObjectDoesNotExist if not found
+        sub_to_remove = User.objects.get(username=sub_name_to_remove)
+        self.object.subscriptions.remove(sub_to_remove)
+        return HttpResponseRedirect(self.get_success_url())
 
     # This function overwrites the reading of values from the user provided form
     # and instead provides a list of new subscriptions consisting of the old ones
     # minus the one to be removed. The latter is read from the URL parameters.
     # After this, UpdateView does its thing.
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        subs = self.object.subscriptions.only("id", "username")
-        sub_name_to_remove = self.kwargs["subscription_username"]
-        if not subs.filter(username=sub_name_to_remove).exists():
-            raise Http404("User '{}' is not in subscriptions list".format(sub_name_to_remove))
-        sub_ids_to_remain = subs.exclude(username=sub_name_to_remove).values_list("id", flat=True)
-        kwargs.update({"data": {"subscriptions": sub_ids_to_remain}})
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     subs = self.object.subscriptions.only("id", "username")
+    #     sub_name_to_remove = self.kwargs["subscription_username"]
+    #     if not subs.filter(username=sub_name_to_remove).exists():
+    #         raise Http404("User '{}' is not in subscriptions list".format(sub_name_to_remove))
+    #     sub_ids_to_remain = subs.exclude(username=sub_name_to_remove).values_list("id", flat=True)
+    #     kwargs.update({"data": {"subscriptions": sub_ids_to_remain}})
+    #     return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["subscription_username"] = self.kwargs["subscription_username"]
         return context
+
+
+# View to add a single subscription from a user. User and subscription to add
+# are provided via URL parameters
+class AddSubscription(UserOwnerRequiredMixin, UpdateView):
+    template_name = "sajt/subscription_add.html"
+    model = User
+    success_url = reverse_lazy("sajt:message-list")
+    # form_class = AddSubscriptionForm
+    fields = ("subscriptions",)
+    slug_field = "username"
+
+    # Ugly. Something here is fishy. Why am I using form_valid for the main form
+    # action of adding the extra subscription to the User instance? Bonkers. I should
+    # Probably have a custom form (but that turned out to be really hard too) or
+    # at least overwrite get_form_kwarg() to just hard set the form values and ignore
+    # those from POST (but that is hard because QuerySets are immutable, and I would
+    # want to add the subscription to the query result of current subscribers. Also
+    # requires an extra database call which is ridiculous.)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        sub_name_to_add = self.kwargs["subscription_username"]
+        # Raises ObjectDoesNotExist if not found
+        sub_to_add = User.objects.get(username=sub_name_to_add)
+        self.object.subscriptions.add(sub_to_add)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["subscription_username"] = self.kwargs["subscription_username"]
+        return context
+
+
+#####################################################################
+#                           MESSAGE VIEWS                           #
+#####################################################################
 
 
 # View ALL messages by ALL users.

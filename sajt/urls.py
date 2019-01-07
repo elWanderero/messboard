@@ -17,6 +17,11 @@ urlpatterns = [
         name="subscriptions",
     ),
     path(
+        "users/<str:slug>/subscriptions/<str:subscription_username>/add",
+        views.AddSubscription.as_view(),
+        name="add-subscription",
+    ),
+    path(
         "users/<str:slug>/subscriptions/<str:subscription_username>/delete",
         views.RemoveSubscription.as_view(),
         name="remove-subscription",
