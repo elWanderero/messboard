@@ -47,7 +47,7 @@ class UserOwnerRequiredMixin(UserPassesTestMixin):
 # Se your starting page, with all your subscriptions.
 @require_safe
 @login_required
-def my_subscriptions(request) -> HttpResponse:
+def user_subscription_list(request) -> HttpResponse:
     subs = request.user.subscriptions.all().only("id", "username")
     messages = Message.objects.filter(author__in=subs).only("text", "date_created")
     messages_by_authors = [
@@ -58,7 +58,7 @@ def my_subscriptions(request) -> HttpResponse:
         for sub in subs
     ]
     context = {"messages_by_authors": messages_by_authors}
-    return render(request, "sajt/my_subscriptions.html", context)
+    return render(request, "sajt/user_subscription_list.html", context)
 
 
 # View to remove a single subscription from a user. User and subscription to remove

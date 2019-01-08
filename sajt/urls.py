@@ -1,11 +1,11 @@
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
 app_name = "sajt"
 
 urlpatterns = [
-    path("", views.my_subscriptions, name="my-subscriptions"),
+    path("", views.user_subscription_list, name="my-subscriptions"),
     path(
         "users/<str:username>",
         views.UserMessageList.as_view(),
@@ -13,7 +13,7 @@ urlpatterns = [
     ),
     path(
         "users/<str:username>/subscriptions",
-        views.my_subscriptions,
+        views.user_subscription_list,
         name="subscriptions",
     ),
     path(
@@ -34,4 +34,5 @@ urlpatterns = [
         name="message-delete",
     ),
     path("messages/<int:pk>/edit", views.MessageEdit.as_view(), name="message-edit"),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]
