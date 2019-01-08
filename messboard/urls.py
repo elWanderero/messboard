@@ -16,10 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from sajt.views import my_subscriptions
+from sajt.views import user_subscription_list
 
 urlpatterns = [
-    path("", my_subscriptions, name="index"),
+    path("", user_subscription_list, name="index"),
     path("sajt/", include("sajt.urls", namespace="sajt")),
     path("api/", include("api.urls")),
     path("admin/", admin.site.urls),
